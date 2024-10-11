@@ -14,7 +14,10 @@ import com.codepath.asynchttpclient.AsyncHttpClient
 import com.codepath.asynchttpclient.RequestParams
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler
 import com.codepath.bestsellerlistapp.R
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import okhttp3.Headers
+import org.json.JSONObject
 
 // --------------------------------//
 // CHANGE THIS TO BE YOUR API KEY  //
@@ -70,12 +73,13 @@ class BestSellerBooksFragment : Fragment(), OnListFragmentInteractionListener {
                     // The wait for a response is over
                     progressBar.hide()
 
-                    //TODO - Parse JSON into Models
-
-                    // Old:  val models: List<BestSellerBook> = null // Fix me!
-                    val models: List<BestSellerBook> = ArrayList()
-                    recyclerView.adapter =
-                        BestSellerBooksRecyclerViewAdapter(models, this@BestSellerBooksFragment)
+                    // Parse JSON into Models
+                    val resultsJSON : JSONObject = json.jsonObject.get("results") as JSONObject
+                    val booksRawJSON : String = resultsJSON.get("books").toString()
+                    val gson = Gson()
+                    val arrayBookType = object : TypeToken<List<BestSellerBook>>() {}.type
+                    val models : List<BestSellerBook> = gson.fromJson(booksRawJSON, arrayBookType)
+                    recyclerView.adapter = BestSellerBooksRecyclerViewAdapter(models, this@BestSellerBooksFragment)
 
                     // Look for this in Logcat:
                     Log.d("BestSellerBooksFragment", "response successful")
